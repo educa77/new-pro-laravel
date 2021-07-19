@@ -7,6 +7,9 @@ use App\Models\Car;
 use App\Models\Car_Model;
 use App\Models\CarProductionDate;
 use App\Models\Product;
+use App\Rules\Uppercase;
+use App\Http\Requests\CreateValidationRequest;
+
 
 class CarsController extends Controller
 {
@@ -46,10 +49,40 @@ class CarsController extends Controller
      */
     public function store(Request $request)
     {
+        //Methods we can use on $request
+        //guessExtension()
+        //getMimeType()
+        //store()
+        //asStore()
+        //storePublicly()
+        //move()
+        //getClientOriginalName()
+        //getClientMimeType() es lo mismo que getMimeType()
+        //getClientguessExtension() es lo mismo que guessExtension()
+        //getSize()
+        //getError()
+        //isValid()
+
+
+        $request->validate([
+            'name' => 'required|unique:cars',
+            'founded' => 'required|integer|min:0|max:2021',
+            'description' => 'required',
+            'image' => 'required|mimes:png,jpg,jpeg|max:5048'
+        ]);
+
+        // Si es valido procede con el codigo, si no tira un error de validacion.
+
+        $newImageName = time() . '-' . $request->name . '.' . $request->image->extension();
+
+        $request->image->move(public_path('images'), $newImageName);
+
+
         $car = Car::create([
             'name' => $request->input('name'),
             'founded' => $request->input('founded'),
             'description' => $request->input('description'),
+            'image_path' => $newImageName
         ]);
 
         return redirect('/cars');
@@ -88,10 +121,24 @@ class CarsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'name' => 'required',
+            'founded' => 'required|integer|min:0|max:2021',
+            'description' => 'required',
+            'image' => 'required|mimes:png,jpg,jpeg|max:5048'
+        ]);
+
+        $newImageName = time() . '-' . $request->name . '.' . $request->image->extension();
+
+        $request->image->move(public_path('images'), $newImageName);
+
+
+
         $car = Car::where('id', $id)->update([
             'name' => $request->input('name'),
             'founded' => $request->input('founded'),
             'description' => $request->input('description'),
+            'image_path' => $newImageName
         ]);
 
         return redirect('/cars');
