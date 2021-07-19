@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Car;
+use App\Models\Car_Model;
+use App\Models\CarProductionDate;
+use App\Models\Product;
 
 class CarsController extends Controller
 {
@@ -18,7 +21,7 @@ class CarsController extends Controller
         $cars = Car::all()->toJson();
         $cars = json_decode($cars);
 
-        var_dump($carsArray);
+        //var_dump($carsArray);
 
         return view('cars.index', [
             'cars' => $cars
@@ -60,7 +63,8 @@ class CarsController extends Controller
      */
     public function show($id)
     {
-        //
+        $car = Car::find($id);
+        return view('cars.show')->with('car', $car);
     }
 
     /**
